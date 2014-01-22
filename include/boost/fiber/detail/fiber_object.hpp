@@ -13,6 +13,7 @@
 #include <boost/config.hpp>
 #include <boost/move/move.hpp>
 #include <boost/ref.hpp>
+#include <boost/coroutine/detail/stack_tuple.hpp>
 
 #include <boost/fiber/attributes.hpp>
 #include <boost/fiber/detail/config.hpp>
@@ -31,12 +32,14 @@ namespace boost {
 namespace fibers {
 namespace detail {
 
-template< typename Fn, typename Allocator >
-class fiber_object : public fiber_base
+using boost::coroutines::detail::stack_tuple;
+
+template< typename Fn, typename Allocator, typename StackAllocator >
+class fiber_object : private stack_tuple<StackAllocator>, public fiber_base
 {
 public:
     typedef typename Allocator::template rebind<
-        fiber_object< Fn, Allocator >
+        fiber_object< Fn, Allocator, StackAllocator >
     >::other                                            allocator_t;
 
 private:
@@ -56,29 +59,29 @@ private:
 
 public:
 #ifndef BOOST_NO_RVALUE_REFERENCES
-    template< typename StackAllocator >
     fiber_object( Fn && fn, attributes const& attr,
                   StackAllocator const& stack_alloc,
                   allocator_t const& alloc) :
-        base_type( attr, stack_alloc, alloc),
+        stack_tuple<StackAllocator>(stack_alloc, attr.size),
+        base_type( this->stack_ctx),
         fn_( forward< Fn >( fn) ),
         alloc_( alloc)
     {}
 #else
-    template< typename StackAllocator >
     fiber_object( Fn fn, attributes const& attr,
                   StackAllocator const& stack_alloc,
                   allocator_t const& alloc) :
-        base_type( attr, stack_alloc, alloc),
+        stack_tuple<StackAllocator>(stack_alloc, attr.size),
+        base_type( this->stack_ctx),
         fn_( fn),
         alloc_( alloc)
     {}
 
-    template< typename StackAllocator >
     fiber_object( BOOST_RV_REF( Fn) fn, attributes const& attr,
                   StackAllocator const& stack_alloc,
                   allocator_t const& alloc) :
-        base_type( attr, stack_alloc, alloc),
+        stack_tuple<StackAllocator>(stack_alloc, attr.size),
+        base_type( this->stack_ctx),
         fn_( fn),
         alloc_( alloc)
     {}

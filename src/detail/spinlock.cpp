@@ -22,7 +22,6 @@ spinlock::spinlock() :
 void
 spinlock::lock()
 {
-    bool is_fiber = 0 != scheduler::instance()->active().get();
     for (;;)
     {
         // access to CPU's cache
@@ -30,11 +29,9 @@ spinlock::lock()
         // sucessive acccess to state_ > cache hit
         while ( LOCKED == state_)
         {
-            // busy-wait
-            if ( is_fiber)
-                scheduler::instance()->yield();
-            else
-                this_thread::yield();
+			// lock can only be held by another thread
+			// give up CPU to other threads to speed up lock's release
+            this_thread::yield();
         }
         // state_ was released by other
         // cached copies are invalidated -> cache miss

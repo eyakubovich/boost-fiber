@@ -90,7 +90,7 @@ void fn_migrate_fibers( boost::fibers::round_robin_ws * other_ds, boost::barrier
         if ( f)
         {
             ++( * count);
-            ds.migrate_to( f);
+            boost::fibers::migrate( f);
             f.detach();
         }
         while ( boost::fibers::detail::scheduler::instance()->run() );

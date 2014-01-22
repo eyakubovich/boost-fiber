@@ -18,10 +18,10 @@ project boost/fiber
       <library>/boost/chrono//boost_chrono
       <library>/boost/coroutine//boost_coroutine
       <library>/boost/thread//boost_thread
-      <toolset>gcc-4.7,<segmented-stacks>on:<cxxflags>-fsplit-stack
-      <toolset>gcc-4.7,<segmented-stacks>on:<linkflags>"-static-libgcc"
-      <toolset>gcc-4.8,<segmented-stacks>on:<cxxflags>-fsplit-stack
-      <toolset>gcc-4.8,<segmented-stacks>on:<linkflags>"-static-libgcc"
+#      <toolset>gcc-4.7,<segmented-stacks>on:<cxxflags>-fsplit-stack
+#      <toolset>gcc-4.7,<segmented-stacks>on:<linkflags>"-static-libgcc"
+#      <toolset>gcc-4.8,<segmented-stacks>on:<cxxflags>-fsplit-stack
+#      <toolset>gcc-4.8,<segmented-stacks>on:<linkflags>"-static-libgcc"
       <link>shared:<define>BOOST_FIBERS_DYN_LINK=1
       <threading>multi
       <define>BOOST_FIBERS_SOURCE
@@ -31,14 +31,15 @@ project boost/fiber
     ;
 
 lib boost_fiber
-    : asio/round_robin.cpp
-      barrier.cpp
+    : barrier.cpp
       condition.cpp
       detail/fiber_base.cpp
+      detail/notify.cpp
       detail/scheduler.cpp
       detail/spinlock.cpp
       fiber.cpp
       fiber_group.cpp
+      fiber_manager.cpp
       future.cpp
       interruption.cpp
       mutex.cpp

@@ -8,6 +8,7 @@
 
 #include <boost/atomic.hpp>
 #include <boost/config.hpp>
+#include <boost/foreach.hpp>
 
 #include <boost/fiber/detail/config.hpp>
 #include <boost/fiber/detail/notify.hpp>
@@ -20,7 +21,7 @@ namespace boost {
 namespace fibers {
 namespace detail {
 
-class main_notifier : public notify
+class main_notifier : private context::fcontext_t, public notify
 {
 public:
     static ptr_t make_pointer( main_notifier & n) {
@@ -30,24 +31,22 @@ public:
     }
 
     main_notifier() :
-        ready_( false)
-    {}
+        notify(static_cast<context::fcontext_t*>(this))
+    {
+		thread_affinity(true);
+		set_running();
+	}
 
-    bool is_ready() const BOOST_NOEXCEPT
-    { return ready_; }
-
-    void set_ready() BOOST_NOEXCEPT
-    { ready_ = true; }
+	~main_notifier()
+	{
+		BOOST_FOREACH( fss_data_t::value_type & data, fss_data_)
+		{ data.second.do_cleanup(); }
+	}
 
     void deallocate_object()
     {}
 
-    id get_id() const BOOST_NOEXCEPT
-    { return id( const_cast< main_notifier * >( this) ); }
-
 private:
-    atomic< bool >  ready_;
-
     main_notifier( main_notifier const&);
     main_notifier & operator=( main_notifier const&);
 };

@@ -62,15 +62,12 @@ public:
 
     ~fiber_specific_ptr()
     {
-        if ( detail::scheduler::instance()->active() )
-            detail::scheduler::instance()->active()->set_fss_data(
-                this, cleanup_fn_, 0, true);
+        detail::scheduler::instance()->active()->set_fss_data(
+            this, cleanup_fn_, 0, true);
     }
 
     T * get() const
     {
-        BOOST_ASSERT( detail::scheduler::instance()->active() );
-
         void * vp( detail::scheduler::instance()->active()->get_fss_data( this) );
         return static_cast< T * >( vp);
     }

@@ -13,7 +13,7 @@
 #include <boost/thread/lock_types.hpp> 
 
 #include <boost/fiber/detail/config.hpp>
-#include <boost/fiber/detail/fiber_base.hpp>
+#include <boost/fiber/detail/notify.hpp>
 #include <boost/fiber/detail/spinlock.hpp>
 
 #ifdef BOOST_HAS_ABI_HEADERS
@@ -27,7 +27,7 @@ namespace detail {
 class ws_queue
 {
 private:
-    typedef std::deque< fiber_base::ptr_t >     queue_t;
+    typedef std::deque< notify::ptr_t >     queue_t;
 
     spinlock    splk_;
     queue_t     queue_;
@@ -38,13 +38,13 @@ public:
         queue_()
     {}
 
-    void push( fiber_base::ptr_t const& f)
+    void push( notify::ptr_t const& f)
     {
         unique_lock< spinlock > lk( splk_);
         queue_.push_back( f);
     }
 
-    bool try_pop( fiber_base::ptr_t & f)
+    bool try_pop( notify::ptr_t & f)
     {
         unique_lock< spinlock > lk( splk_);
         queue_t::iterator e = queue_.end();

@@ -31,35 +31,34 @@ fiber_base::set_terminated_() BOOST_NOEXCEPT
 }
 
 void
-fiber_base::trampoline_( coro::coroutine< void >::push_type & c)
-{
-    BOOST_ASSERT( c);
-    BOOST_ASSERT( ! is_terminated() );
+fiber_base::entry_thunk(intptr_t param) {
+	fiber_base* me = static_cast<fiber_base*>(reinterpret_cast<notify*>(param));
+	me->entry_func();
+}
 
-    callee_ = & c;
-    set_running();
-    suspend();
-
-    try
-    {
+void
+fiber_base::entry_func() {
+	try {
         BOOST_ASSERT( is_running() );
-        run();
+		run();
         BOOST_ASSERT( is_running() );
-    }
-    catch ( coro::detail::forced_unwind const&)
+	}
+/*    catch ( coro::detail::forced_unwind const&)
     {
         set_terminated_();
         release();
         throw;
     }
-    catch ( fiber_interrupted const&)
-    { except_ = current_exception(); }
-    catch (...)
-    { std::terminate(); }
-
+*/	catch( fiber_interrupted const& ) {
+    	except_ = current_exception();
+	}
+	catch( ... ) {
+		std::terminate();
+	}
     set_terminated_();
     release();
-    suspend();
+
+	fibers::detail::scheduler::instance()->run();
 
     BOOST_ASSERT_MSG( false, "fiber already terminated");
 }
@@ -71,31 +70,11 @@ fiber_base::~fiber_base()
 }
 
 void
-fiber_base::resume()
-{
-    BOOST_ASSERT( caller_);
-    BOOST_ASSERT( is_running() ); // set by the scheduler-algorithm
-
-    caller_();
-}
-
-void
-fiber_base::suspend()
-{
-    BOOST_ASSERT( callee_);
-    BOOST_ASSERT( * callee_);
-
-    ( * callee_)();
-
-    BOOST_ASSERT( is_running() ); // set by the scheduler-algorithm
-}
-
-void
 fiber_base::release()
 {
     BOOST_ASSERT( is_terminated() );
 
-    std::vector< ptr_t > waiting;
+    std::vector< notify::ptr_t > waiting;
 
     // get all waiting fibers
     splk_.lock();
@@ -103,7 +82,7 @@ fiber_base::release()
     splk_.unlock();
 
     // notify all waiting fibers
-    BOOST_FOREACH( fiber_base::ptr_t p, waiting)
+    BOOST_FOREACH( notify::ptr_t p, waiting)
     { p->set_ready(); }
 
     // release all fiber-specific-pointers
@@ -112,98 +91,12 @@ fiber_base::release()
 }
 
 bool
-fiber_base::join( ptr_t const& p)
+fiber_base::join( notify::ptr_t const& p)
 {
     unique_lock< spinlock > lk( splk_);
     if ( is_terminated() ) return false;
     waiting_.push_back( p);
     return true;
-}
-
-void
-fiber_base::interruption_blocked( bool blck) BOOST_NOEXCEPT
-{
-    if ( blck)
-        flags_ |= flag_interruption_blocked;
-    else
-        flags_ &= ~flag_interruption_blocked;
-}
-
-void
-fiber_base::request_interruption( bool req) BOOST_NOEXCEPT
-{
-    if ( req)
-        flags_ |= flag_interruption_requested;
-    else
-        flags_ &= ~flag_interruption_requested;
-}
-
-void
-fiber_base::thread_affinity( bool req) BOOST_NOEXCEPT
-{
-    if ( req)
-        flags_ |= flag_thread_affinity;
-    else
-        flags_ &= ~flag_thread_affinity;
-}
-
-void
-fiber_base::set_ready() BOOST_NOEXCEPT
-{
-    state_t previous = state_.exchange( READY);
-    BOOST_ASSERT( WAITING == previous || RUNNING == previous || READY == previous);
-}
-
-void
-fiber_base::set_running() BOOST_NOEXCEPT
-{
-    state_t previous = state_.exchange( RUNNING);
-    BOOST_ASSERT( READY == previous);
-}
-
-void
-fiber_base::set_waiting() BOOST_NOEXCEPT
-{
-    state_t previous = state_.exchange( WAITING);
-    BOOST_ASSERT( RUNNING == previous);
-}
-
-void *
-fiber_base::get_fss_data( void const* vp) const
-{
-    uintptr_t key( reinterpret_cast< uintptr_t >( vp) );
-    fss_data_t::const_iterator i( fss_data_.find( key) );
-
-    return fss_data_.end() != i ? i->second.vp : 0;
-}
-
-void
-fiber_base::set_fss_data(
-    void const* vp,
-    fss_cleanup_function::ptr_t const& cleanup_fn,
-    void * data, bool cleanup_existing)
-{
-    BOOST_ASSERT( cleanup_fn);
-
-    uintptr_t key( reinterpret_cast< uintptr_t >( vp) );
-    fss_data_t::iterator i( fss_data_.find( key) );
-
-    if ( fss_data_.end() != i)
-    {
-        if( cleanup_existing) i->second.do_cleanup();
-        if ( data)
-            fss_data_.insert(
-                    i,
-                    std::make_pair(
-                        key,
-                        fss_data( data, cleanup_fn) ) );
-        else fss_data_.erase( i);
-    }
-    else
-        fss_data_.insert(
-            std::make_pair(
-                key,
-                fss_data( data, cleanup_fn) ) );
 }
 
 void

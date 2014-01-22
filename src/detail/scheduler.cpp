@@ -7,8 +7,6 @@
 
 #include <boost/assert.hpp>
 
-#include "boost/fiber/round_robin.hpp"
-
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
 #endif
@@ -17,29 +15,26 @@ namespace boost {
 namespace fibers {
 namespace detail {
 
-static void deleter_fn( algorithm * algo) { delete algo; }
-static void null_deleter_fn( algorithm *) {}
+static void deleter_fn( fiber_manager* mgr) { delete mgr; }
 
-thread_specific_ptr< algorithm > scheduler::default_algo_( deleter_fn);
-thread_specific_ptr< algorithm > scheduler::instance_( null_deleter_fn);
+thread_specific_ptr< fiber_manager> scheduler::instance_( deleter_fn);
 
-algorithm *
+fiber_manager*
 scheduler::instance()
 {
     if ( ! instance_.get() )
     {
-        default_algo_.reset( new round_robin() );
-        instance_.reset( default_algo_.get() );
+        instance_.reset( new fiber_manager() );
     }
     return instance_.get();
 }
 
 void
-scheduler::replace( algorithm * other)
+scheduler::replace( sched_algorithm * other)
 {
     BOOST_ASSERT( other);
 
-    instance_.reset( other);
+    instance()->set_sched_algo( other);
 }
 
 }}}

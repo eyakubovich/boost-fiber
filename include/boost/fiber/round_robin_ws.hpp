@@ -16,7 +16,7 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/thread/lock_types.hpp> 
 
-#include <boost/fiber/algorithm.hpp>
+#include <boost/fiber/fiber_manager.hpp>
 #include <boost/fiber/detail/config.hpp>
 #include <boost/fiber/detail/fiber_base.hpp>
 #include <boost/fiber/detail/main_notifier.hpp>
@@ -37,55 +37,19 @@
 namespace boost {
 namespace fibers {
 
-class BOOST_FIBERS_DECL round_robin_ws : public algorithm
+class BOOST_FIBERS_DECL round_robin_ws : public sched_algorithm
 {
 private:
-    struct schedulable
-    {
-        detail::fiber_base::ptr_t   f;
-        clock_type::time_point      tp;
-
-        schedulable( detail::fiber_base::ptr_t const& f_,
-                     clock_type::time_point const& tp_ =
-                        (clock_type::time_point::max)() ) :
-            f( f_), tp( tp_)
-        { BOOST_ASSERT( f); }
-    };
-
-    typedef std::deque< schedulable >                   wqueue_t;
-
-    detail::fiber_base::ptr_t   active_fiber_;
-    wqueue_t                    wqueue_;
     detail::ws_queue            rqueue_;
-    detail::main_notifier       mn_;
 
 public:
     round_robin_ws() BOOST_NOEXCEPT;
 
     ~round_robin_ws() BOOST_NOEXCEPT;
 
-    void spawn( detail::fiber_base::ptr_t const&);
-
-    void priority( detail::fiber_base::ptr_t const&, int) BOOST_NOEXCEPT;
-
-    void join( detail::fiber_base::ptr_t const&);
-
-    detail::fiber_base::ptr_t active() BOOST_NOEXCEPT
-    { return active_fiber_; }
-
-    bool run();
-
-    void wait( unique_lock< detail::spinlock > &);
-    bool wait_until( clock_type::time_point const&,
-                     unique_lock< detail::spinlock > &);
-
-    void yield();
-
-    detail::fiber_base::id get_main_id()
-    { return detail::fiber_base::id( detail::main_notifier::make_pointer( mn_) ); }
-
-    detail::notify::ptr_t get_main_notifier()
-    { return detail::notify::ptr_t( new detail::main_notifier() ); }
+	virtual void awakened( detail::notify::ptr_t const& fib);
+	virtual detail::notify::ptr_t pick_next();
+    virtual void priority( detail::notify::ptr_t const&, int) BOOST_NOEXCEPT;
 
     fiber steal_from();
     void migrate_to( fiber const&);

@@ -8,7 +8,7 @@
 
 #include <boost/thread/lock_types.hpp> 
 
-#include <boost/fiber/algorithm.hpp>
+#include <boost/fiber/fiber_manager.hpp>
 #include <boost/fiber/detail/config.hpp>
 #include <boost/fiber/detail/scheduler.hpp>
 #include <boost/fiber/detail/spinlock.hpp>
@@ -25,37 +25,24 @@ namespace this_fiber {
 inline
 fibers::fiber::id get_id() BOOST_NOEXCEPT
 {
-    return fibers::detail::scheduler::instance()->active()
-        ? fibers::detail::scheduler::instance()->active()->get_id()
-        : fibers::fiber::id( fibers::detail::scheduler::instance()->get_main_id() );
+    return fibers::detail::scheduler::instance()->active()->get_id();
 }
 
 inline
 void yield()
 {
-    if ( fibers::detail::scheduler::instance()->active() )
-        fibers::detail::scheduler::instance()->yield();
-    else
-        fibers::detail::scheduler::instance()->run();
+    fibers::detail::scheduler::instance()->yield();
 }
 
 inline
 void sleep_until( fibers::clock_type::time_point const& sleep_time)
 {
-    if ( fibers::detail::scheduler::instance()->active() )
-    {
-        fibers::detail::spinlock splk;
-        unique_lock< fibers::detail::spinlock > lk( splk);
-        fibers::detail::scheduler::instance()->wait_until( sleep_time, lk);
+    fibers::detail::spinlock splk;
+    unique_lock< fibers::detail::spinlock > lk( splk);
+    fibers::detail::scheduler::instance()->wait_until( sleep_time, lk);
 
-        // check if fiber was interrupted
-        interruption_point();
-    }
-    else
-    {
-        while ( fibers::clock_type::now() <= sleep_time)
-            fibers::detail::scheduler::instance()->run();
-    }
+    // check if fiber was interrupted
+    interruption_point();
 }
 
 template< typename Rep, typename Period >
@@ -82,8 +69,12 @@ void thread_affinity( bool req) BOOST_NOEXCEPT
 namespace fibers {
 
 inline
-void set_scheduling_algorithm( algorithm * al)
+void set_scheduling_algorithm( sched_algorithm * al)
 { detail::scheduler::replace( al); }
+
+inline
+void migrate(fiber const& f)
+{ fibers::detail::scheduler::instance()->migrate(detail::scheduler::extract(f)); }
 
 }}
 

@@ -10,7 +10,7 @@
 #include <boost/thread/tss.hpp>
 #include <boost/utility.hpp>
 
-#include <boost/fiber/algorithm.hpp>
+#include <boost/fiber/fiber_manager.hpp>
 #include <boost/fiber/detail/config.hpp>
 #include <boost/fiber/detail/notify.hpp>
 
@@ -30,17 +30,16 @@ namespace detail {
 class scheduler : private noncopyable
 {
 private:
-    static thread_specific_ptr< algorithm > default_algo_;
-    static thread_specific_ptr< algorithm > instance_;
+    static thread_specific_ptr< fiber_manager > instance_;
 
 public:
     template< typename F >
     static fiber_base::ptr_t extract( F const& f) BOOST_NOEXCEPT
     { return f.impl_; }
 
-    static algorithm * instance();
+    static fiber_manager* instance();
 
-    static void replace( algorithm * other);
+    static void replace( sched_algorithm * other);
 };
 
 }}}

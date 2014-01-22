@@ -20,7 +20,7 @@
 #include <boost/move/move.hpp>
 
 #include <boost/fiber/attributes.hpp>
-#include <boost/fiber/detail/fiber_base.hpp>
+#include <boost/fiber/detail/notify.hpp>
 
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
@@ -59,7 +59,7 @@ public:
    * function.
    */
   basic_yield_context(
-          boost::fibers::detail::fiber_base::ptr_t const& fib,
+          boost::fibers::detail::notify::ptr_t const& fib,
           Handler& handler) :
       fiber_( fib),
       handler_( handler),
@@ -95,7 +95,7 @@ public:
 #if defined(GENERATING_DOCUMENTATION)
 private:
 #endif // defined(GENERATING_DOCUMENTATION)
-  boost::fibers::detail::fiber_base::ptr_t   fiber_;
+  boost::fibers::detail::notify::ptr_t   fiber_;
   Handler                                &   handler_;
   boost::system::error_code              *   ec_;
 };
@@ -161,7 +161,8 @@ typedef basic_yield_context<
  * @param attributes Boost.Fiber attributes used to customise the fiber.
  */
 template< typename Handler, typename Function >
-void spawn( BOOST_ASIO_MOVE_ARG( Handler) handler,
+void spawn( boost::asio::io_service & io_service,
+        BOOST_ASIO_MOVE_ARG( Handler) handler,
         BOOST_ASIO_MOVE_ARG( Function) function,
         boost::fibers::attributes const& attributes
             = boost::fibers::attributes() );
@@ -182,7 +183,8 @@ void spawn( BOOST_ASIO_MOVE_ARG( Handler) handler,
  * @param attributes Boost.Fiber attributes used to customise the fiber.
  */
 template< typename Handler, typename Function >
-void spawn( basic_yield_context< Handler > ctx,
+void spawn( boost::asio::io_service & io_service,
+        basic_yield_context< Handler > ctx,
         BOOST_ASIO_MOVE_ARG( Function) function,
         boost::fibers::attributes const& attributes
             = boost::fibers::attributes() );

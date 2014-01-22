@@ -19,8 +19,6 @@ int value2 = 0;
 void fn1( boost::fibers::barrier & b)
 {
     ++value1;
-    boost::this_fiber::yield();
-
     b.wait();
 
     ++value1;
@@ -42,6 +40,7 @@ void fn2( boost::fibers::barrier & b)
     boost::this_fiber::yield();
 
     b.wait();
+    boost::this_fiber::yield();
 
     ++value2;
     boost::this_fiber::yield();
@@ -53,18 +52,21 @@ void test_barrier()
     value1 = 0;
     value2 = 0;
 
-    boost::fibers::barrier b( 2);
+    boost::fibers::barrier b( 3);
     boost::fibers::fiber s1(
             boost::bind(
                 fn1, boost::ref( b) ) );
     BOOST_CHECK( s1);
-    BOOST_CHECK_EQUAL( 1, value1);
 
     boost::fibers::fiber s2(
             boost::bind(
                 fn2, boost::ref( b) ) );
     BOOST_CHECK( s2);
-    BOOST_CHECK_EQUAL( 1, value2);
+
+	b.wait();
+
+    BOOST_CHECK_EQUAL( 1, value1);
+    BOOST_CHECK_EQUAL( 3, value2);
 
     s1.join();
     s2.join();

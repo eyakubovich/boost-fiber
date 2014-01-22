@@ -37,8 +37,6 @@
 namespace boost {
 namespace fibers {
 
-namespace coro = boost::coroutines;
-
 namespace detail {
 
 class scheduler;
@@ -214,7 +212,7 @@ public:
         impl_()
     {
         typedef detail::fiber_object<
-                Fn, std::allocator< fiber >
+                Fn, std::allocator< fiber >, stack_allocator
             >                               object_t;
         typename object_t::allocator_t a( alloc);
         impl_ = ptr_t(
@@ -235,7 +233,7 @@ public:
         impl_()
     {
         typedef detail::fiber_object<
-                Fn, std::allocator< fiber >
+                Fn, std::allocator< fiber >, StackAllocator
             >                               object_t;
         typename object_t::allocator_t a( alloc);
         impl_ = ptr_t(
@@ -255,7 +253,7 @@ public:
         impl_()
     {
         typedef detail::fiber_object<
-                Fn, Allocator
+                Fn, Allocator, StackAllocator
             >                               object_t;
         typename object_t::allocator_t a( alloc);
         impl_ = ptr_t(
@@ -276,7 +274,7 @@ public:
         impl_()
     {
         typedef detail::fiber_object<
-                Fn, std::allocator< fiber >
+                Fn, std::allocator< fiber >, stack_allocator
             >                               object_t;
         typename object_t::allocator_t a( alloc);
         impl_ = ptr_t(
@@ -297,7 +295,7 @@ public:
         impl_()
     {
         typedef detail::fiber_object<
-                Fn, std::allocator< fiber >
+                Fn, std::allocator< fiber >, StackAllocator
             >                               object_t;
         typename object_t::allocator_t a( alloc);
         impl_ = ptr_t(
@@ -317,7 +315,7 @@ public:
         impl_()
     {
         typedef detail::fiber_object<
-                Fn, Allocator
+                Fn, Allocator, StackAllocator
             >                               object_t;
         typename object_t::allocator_t a( alloc);
         impl_ = ptr_t(
