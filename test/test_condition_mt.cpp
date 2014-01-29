@@ -34,25 +34,25 @@ void notify_one_fn( boost::barrier & b, boost::fibers::condition & cond)
 {
     b.wait();
     boost::this_thread::sleep_for( ms( 250) );
-	cond.notify_one();
+    cond.notify_one();
 }
 
 void notify_all_fn( boost::barrier & b, boost::fibers::condition & cond)
 {
     b.wait();
     boost::this_thread::sleep_for( ms( 250) );
-	cond.notify_all();
+    cond.notify_all();
 }
 
 void wait_fn(
     boost::barrier & b,
-	boost::fibers::mutex & mtx,
-	boost::fibers::condition & cond)
+    boost::fibers::mutex & mtx,
+    boost::fibers::condition & cond)
 {
     b.wait();
-	boost::fibers::mutex::scoped_lock lk( mtx);
-	cond.wait( lk);
-	++value;
+    boost::fibers::mutex::scoped_lock lk( mtx);
+    cond.wait( lk);
+    ++value;
 }
 
 void fn1( boost::barrier & b, boost::fibers::mutex & mtx, boost::fibers::condition & cond)
@@ -67,7 +67,7 @@ void fn1( boost::barrier & b, boost::fibers::mutex & mtx, boost::fibers::conditi
 
 void fn2( boost::barrier & b, boost::fibers::condition & cond)
 {
-	boost::fibers::fiber(
+    boost::fibers::fiber(
             boost::bind(
                 notify_one_fn,
                 boost::ref( b),
@@ -76,7 +76,7 @@ void fn2( boost::barrier & b, boost::fibers::condition & cond)
 
 void fn3( boost::barrier & b, boost::fibers::condition & cond)
 {
-	boost::fibers::fiber(
+    boost::fibers::fiber(
             boost::bind(
                 notify_all_fn,
                 boost::ref( b),
@@ -87,44 +87,44 @@ void test_one_waiter_notify_one()
 {
     boost::barrier b( 2);
 
-	value = 0;
-	boost::fibers::mutex mtx;
-	boost::fibers::condition cond;
+    value = 0;
+    boost::fibers::mutex mtx;
+    boost::fibers::condition cond;
 
-	BOOST_CHECK( 0 == value);
+    BOOST_CHECK( 0 == value);
 
     boost::thread t1(boost::bind( fn1, boost::ref( b), boost::ref( mtx), boost::ref( cond) ) );
     boost::thread t2(boost::bind( fn2, boost::ref( b), boost::ref( cond) ) );
 
-	BOOST_CHECK( 0 == value);
+    BOOST_CHECK( 0 == value);
 
     t1.join();
     t2.join();
 
-	BOOST_CHECK( 1 == value);
+    BOOST_CHECK( 1 == value);
 }
 
 void test_two_waiter_notify_all()
 {
     boost::barrier b( 3);
 
-	value = 0;
-	boost::fibers::mutex mtx;
-	boost::fibers::condition cond;
+    value = 0;
+    boost::fibers::mutex mtx;
+    boost::fibers::condition cond;
 
-	BOOST_CHECK( 0 == value);
+    BOOST_CHECK( 0 == value);
 
     boost::thread t1(boost::bind( fn1, boost::ref( b), boost::ref( mtx), boost::ref( cond) ) );
     boost::thread t2(boost::bind( fn1, boost::ref( b), boost::ref( mtx), boost::ref( cond) ) );
     boost::thread t3(boost::bind( fn3, boost::ref( b), boost::ref( cond) ) );
 
-	BOOST_CHECK( 0 == value);
+    BOOST_CHECK( 0 == value);
 
     t1.join();
     t2.join();
     t3.join();
 
-	BOOST_CHECK( 2 == value);
+    BOOST_CHECK( 2 == value);
 }
 
 boost::unit_test::test_suite * init_unit_test_suite( int, char* [])
@@ -135,5 +135,5 @@ boost::unit_test::test_suite * init_unit_test_suite( int, char* [])
     test->add( BOOST_TEST_CASE( & test_one_waiter_notify_one) );
     test->add( BOOST_TEST_CASE( & test_two_waiter_notify_all) );
 
-	return test;
+    return test;
 }

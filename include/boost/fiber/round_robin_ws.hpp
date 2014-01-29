@@ -47,8 +47,8 @@ public:
 
     ~round_robin_ws() BOOST_NOEXCEPT;
 
-	virtual void awakened( detail::notify::ptr_t const& fib);
-	virtual detail::notify::ptr_t pick_next();
+    virtual void awakened( detail::notify::ptr_t const& fib);
+    virtual detail::notify::ptr_t pick_next();
     virtual void priority( detail::notify::ptr_t const&, int) BOOST_NOEXCEPT;
 
     fiber steal_from();

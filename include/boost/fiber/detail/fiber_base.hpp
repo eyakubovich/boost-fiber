@@ -51,8 +51,8 @@ private:
     // set terminate is only set inside fiber_base::trampoline_()
     void set_terminated_() BOOST_NOEXCEPT;
 
-	static void entry_thunk(intptr_t param);
-	void entry_func();
+    static void entry_thunk(intptr_t param);
+    void entry_func();
 
 protected:
     exception_ptr                           except_;

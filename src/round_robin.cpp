@@ -31,19 +31,19 @@ namespace fibers {
 void
 round_robin::awakened( detail::notify::ptr_t const& fib)
 {
-	rqueue_.push_back(fib);
+    rqueue_.push_back(fib);
 }
 
 detail::notify::ptr_t
 round_robin::pick_next()
 {
-	if( rqueue_.empty() )
-		return detail::notify::ptr_t();
-	else {
-		detail::notify::ptr_t victim = rqueue_.front();
-		rqueue_.pop_front();
-		return victim;
-	}
+    if( rqueue_.empty() )
+        return detail::notify::ptr_t();
+    else {
+        detail::notify::ptr_t victim = rqueue_.front();
+        rqueue_.pop_front();
+        return victim;
+    }
 }
 
 void

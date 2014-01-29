@@ -74,21 +74,21 @@ private:
 
 void notify_one_fn( boost::fibers::condition & cond)
 {
-	cond.notify_one();
+    cond.notify_one();
 }
 
 void notify_all_fn( boost::fibers::condition & cond)
 {
-	cond.notify_all();
+    cond.notify_all();
 }
 
 void wait_fn(
-	boost::fibers::mutex & mtx,
-	boost::fibers::condition & cond)
+    boost::fibers::mutex & mtx,
+    boost::fibers::condition & cond)
 {
-	boost::fibers::mutex::scoped_lock lk( mtx);
-	cond.wait( lk);
-	++value;
+    boost::fibers::mutex::scoped_lock lk( mtx);
+    cond.wait( lk);
+    ++value;
 }
 
 void test_condition_wait_is_a_interruption_point()
@@ -108,108 +108,108 @@ void test_condition_wait_is_a_interruption_point()
 
 void test_one_waiter_notify_one()
 {
-	value = 0;
-	boost::fibers::mutex mtx;
-	boost::fibers::condition cond;
+    value = 0;
+    boost::fibers::mutex mtx;
+    boost::fibers::condition cond;
 
     boost::fibers::fiber s1(
             boost::bind(
                 wait_fn,
                 boost::ref( mtx),
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
-	boost::fibers::fiber s2(
+    boost::fibers::fiber s2(
             boost::bind(
                 notify_one_fn,
                 boost::ref( cond) ) );
 
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     s1.join();
     s2.join();
 
-	BOOST_CHECK_EQUAL( 1, value);
+    BOOST_CHECK_EQUAL( 1, value);
 }
 
 void test_two_waiter_notify_one()
 {
-	value = 0;
-	boost::fibers::mutex mtx;
-	boost::fibers::condition cond;
+    value = 0;
+    boost::fibers::mutex mtx;
+    boost::fibers::condition cond;
 
     boost::fibers::fiber s1(
             boost::bind(
                 wait_fn,
                 boost::ref( mtx),
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     boost::fibers::fiber s2(
             boost::bind(
                 wait_fn,
                 boost::ref( mtx),
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     boost::fibers::fiber s3(
             boost::bind(
                 notify_one_fn,
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     boost::fibers::fiber s4(
             boost::bind(
                 notify_one_fn,
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     s1.join();
     s2.join();
     s3.join();
     s4.join();
 
-	BOOST_CHECK_EQUAL( 2, value);
+    BOOST_CHECK_EQUAL( 2, value);
 }
 
 void test_two_waiter_notify_all()
 {
-	value = 0;
-	boost::fibers::mutex mtx;
-	boost::fibers::condition cond;
+    value = 0;
+    boost::fibers::mutex mtx;
+    boost::fibers::condition cond;
 
     boost::fibers::fiber s1(
             boost::bind(
                 wait_fn,
                 boost::ref( mtx),
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     boost::fibers::fiber s2(
             boost::bind(
                 wait_fn,
                 boost::ref( mtx),
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     boost::fibers::fiber s3(
             boost::bind(
                 notify_all_fn,
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     boost::fibers::fiber s4(
             boost::bind(
                 wait_fn,
                 boost::ref( mtx),
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     boost::fibers::fiber s5(
             boost::bind(
                 notify_all_fn,
                 boost::ref( cond) ) );
-	BOOST_CHECK_EQUAL( 0, value);
+    BOOST_CHECK_EQUAL( 0, value);
 
     s1.join();
     s2.join();
@@ -217,7 +217,7 @@ void test_two_waiter_notify_all()
     s4.join();
     s5.join();
 
-	BOOST_CHECK_EQUAL( 3, value);
+    BOOST_CHECK_EQUAL( 3, value);
 }
 
 int test1 = 0;
@@ -549,5 +549,5 @@ boost::unit_test::test_suite * init_unit_test_suite( int, char* [])
     test->add( BOOST_TEST_CASE( & test_condition_wait_for) );
     test->add( BOOST_TEST_CASE( & test_condition_wait_for_pred) );
 
-	return test;
+    return test;
 }

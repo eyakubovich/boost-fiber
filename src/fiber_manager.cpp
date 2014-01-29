@@ -32,9 +32,9 @@ namespace fibers {
 
 fiber_manager::fiber_manager() BOOST_NOEXCEPT :
     def_algo_(new round_robin),
-	sched_algo_(def_algo_.get()),
+    sched_algo_(def_algo_.get()),
     mn_(),
-	active_fiber_(&mn_),
+    active_fiber_(&mn_),
     wqueue_()
 {
 }
@@ -61,43 +61,43 @@ fiber_manager::spawn( detail::fiber_base::ptr_t const& f)
 void
 fiber_manager::run()
 {
-	for( ;; ) {
-		// move all fibers witch are ready (state_ready)
-		// from waiting-queue to the runnable-queue
-		wqueue_t wqueue;
-		for( wqueue_t::iterator it = wqueue_.begin(), end = wqueue_.end(); it != end; ++it )
-		{
-			detail::notify::ptr_t n( it->f);
+    for( ;; ) {
+        // move all fibers witch are ready (state_ready)
+        // from waiting-queue to the runnable-queue
+        wqueue_t wqueue;
+        for( wqueue_t::iterator it = wqueue_.begin(), end = wqueue_.end(); it != end; ++it )
+        {
+            detail::notify::ptr_t n( it->f);
 
-			BOOST_ASSERT( ! n->is_running() );
-			BOOST_ASSERT( ! n->is_terminated() );
+            BOOST_ASSERT( ! n->is_running() );
+            BOOST_ASSERT( ! n->is_terminated() );
 
-			// set fiber to state_ready if dead-line was reached or interruption was requested
-			if ( it->tp <= clock_type::now() || n->interruption_requested() || n->is_ready() ) {
-				n->set_ready();
-				sched_algo_->awakened(n);
-			}
-			else
-				wqueue.push(*it);
-		}
+            // set fiber to state_ready if dead-line was reached or interruption was requested
+            if ( it->tp <= clock_type::now() || n->interruption_requested() || n->is_ready() ) {
+                n->set_ready();
+                sched_algo_->awakened(n);
+            }
+            else
+                wqueue.push(*it);
+        }
 
-		swap(wqueue_, wqueue);
+        swap(wqueue_, wqueue);
 
-		// pop new fiber from ready-queue which is not complete
-		// (example: fiber in ready-queue could be canceled by active-fiber)
-		detail::notify::ptr_t n = sched_algo_->pick_next();
-		if ( n ) {
-			BOOST_ASSERT_MSG( n->is_ready(), "fiber with invalid state in ready-queue");
-			resume_fiber( n);
-			return;
-		}
-		else {
-			// no fibers ready to run; the thread should sleep
-			// until earliest fiber is scheduled to run
-			clock_type::time_point wakeup = next_wakeup();
-			this_thread::sleep_until(wakeup);
-		}
-	}
+        // pop new fiber from ready-queue which is not complete
+        // (example: fiber in ready-queue could be canceled by active-fiber)
+        detail::notify::ptr_t n = sched_algo_->pick_next();
+        if ( n ) {
+            BOOST_ASSERT_MSG( n->is_ready(), "fiber with invalid state in ready-queue");
+            resume_fiber( n);
+            return;
+        }
+        else {
+            // no fibers ready to run; the thread should sleep
+            // until earliest fiber is scheduled to run
+            clock_type::time_point wakeup = next_wakeup();
+            this_thread::sleep_until(wakeup);
+        }
+    }
 }
 
 void fiber_manager::resume_fiber(detail::notify::ptr_t const& n)
@@ -175,24 +175,24 @@ fiber_manager::join( detail::fiber_base::ptr_t const& f)
     BOOST_ASSERT( f);
     BOOST_ASSERT( f != active_fiber_);
 
-	// set active fiber to state_waiting
-	active_fiber_->set_waiting();
-	// push active fiber to wqueue_
-	wqueue_.push( schedulable( active_fiber_) );
-	// add active fiber to joinig-list of f
-	if ( ! f->join( active_fiber_) )
-		// f must be already terminated therefore we set
-		// active fiber to state_ready
-		// FIXME: better state_running and no suspend
-		active_fiber_->set_ready();
-	// store active fiber in local var
-	detail::notify::ptr_t tmp = active_fiber_;
-	// switch to another fiber
-	run();
-	// suspend fiber until f terminates
+    // set active fiber to state_waiting
+    active_fiber_->set_waiting();
+    // push active fiber to wqueue_
+    wqueue_.push( schedulable( active_fiber_) );
+    // add active fiber to joinig-list of f
+    if ( ! f->join( active_fiber_) )
+        // f must be already terminated therefore we set
+        // active fiber to state_ready
+        // FIXME: better state_running and no suspend
+        active_fiber_->set_ready();
+    // store active fiber in local var
+    detail::notify::ptr_t tmp = active_fiber_;
+    // switch to another fiber
+    run();
+    // suspend fiber until f terminates
 
-	BOOST_ASSERT( tmp == detail::scheduler::instance()->active() );
-	BOOST_ASSERT( tmp->is_running() );
+    BOOST_ASSERT( tmp == detail::scheduler::instance()->active() );
+    BOOST_ASSERT( tmp->is_running() );
 
     BOOST_ASSERT( f->is_terminated() );
 }

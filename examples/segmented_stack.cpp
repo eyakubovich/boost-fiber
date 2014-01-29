@@ -37,7 +37,7 @@ void bar( int i)
 void foo()
 {
     bar( count);
-	boost::this_fiber::yield();
+    boost::this_fiber::yield();
 }
 
 void thread_fn()

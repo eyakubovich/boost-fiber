@@ -32,19 +32,19 @@ template< typename M >
 void fn1( M & mtx)
 {
     typedef M mutex_type;
-	typename mutex_type::scoped_lock lk( mtx);
-	++value1;
-	for ( int i = 0; i < 3; ++i)
-		boost::this_fiber::yield();
+    typename mutex_type::scoped_lock lk( mtx);
+    ++value1;
+    for ( int i = 0; i < 3; ++i)
+        boost::this_fiber::yield();
 }
 
 template< typename M >
 void fn2( M & mtx)
 {
     typedef M mutex_type;
-	++value2;
-	typename mutex_type::scoped_lock lk( mtx);
-	++value2;
+    ++value2;
+    typename mutex_type::scoped_lock lk( mtx);
+    ++value2;
 }
 
 void fn3( boost::fibers::timed_mutex & m)
@@ -483,5 +483,5 @@ boost::unit_test::test_suite * init_unit_test_suite( int, char* [])
     test->add( BOOST_TEST_CASE( & test_timed_mutex) );
     test->add( BOOST_TEST_CASE( & test_recursive_timed_mutex) );
 
-	return test;
+    return test;
 }

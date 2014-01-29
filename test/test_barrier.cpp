@@ -63,7 +63,7 @@ void test_barrier()
                 fn2, boost::ref( b) ) );
     BOOST_CHECK( s2);
 
-	b.wait();
+    b.wait();
 
     BOOST_CHECK_EQUAL( 1, value1);
     BOOST_CHECK_EQUAL( 3, value2);

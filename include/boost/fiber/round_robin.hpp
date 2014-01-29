@@ -42,8 +42,8 @@ class round_robin : public sched_algorithm
     rqueue_t                    rqueue_;
 
 public:
-	virtual void awakened( detail::notify::ptr_t const& fib);
-	virtual detail::notify::ptr_t pick_next();
+    virtual void awakened( detail::notify::ptr_t const& fib);
+    virtual detail::notify::ptr_t pick_next();
     virtual void priority( detail::notify::ptr_t const& fib, int prio) BOOST_NOEXCEPT;
 };
 

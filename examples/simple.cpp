@@ -10,11 +10,11 @@
 inline
 void fn( std::string const& str, int n)
 {
-	for ( int i = 0; i < n; ++i)
-	{
-		std::cout << i << ": " << str << std::endl;
-		boost::this_fiber::yield();
-	}
+    for ( int i = 0; i < n; ++i)
+    {
+        std::cout << i << ": " << str << std::endl;
+        boost::this_fiber::yield();
+    }
 }
 
 int main()
@@ -31,9 +31,9 @@ int main()
 
         return EXIT_SUCCESS;
     }
-	catch ( std::exception const& e)
-	{ std::cerr << "exception: " << e.what() << std::endl; }
-	catch (...)
-	{ std::cerr << "unhandled exception" << std::endl; }
-	return EXIT_FAILURE;
+    catch ( std::exception const& e)
+    { std::cerr << "exception: " << e.what() << std::endl; }
+    catch (...)
+    { std::cerr << "unhandled exception" << std::endl; }
+    return EXIT_FAILURE;
 }

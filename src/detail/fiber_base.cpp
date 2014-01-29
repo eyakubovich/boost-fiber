@@ -32,33 +32,33 @@ fiber_base::set_terminated_() BOOST_NOEXCEPT
 
 void
 fiber_base::entry_thunk(intptr_t param) {
-	fiber_base* me = static_cast<fiber_base*>(reinterpret_cast<notify*>(param));
-	me->entry_func();
+    fiber_base* me = static_cast<fiber_base*>(reinterpret_cast<notify*>(param));
+    me->entry_func();
 }
 
 void
 fiber_base::entry_func() {
-	try {
+    try {
         BOOST_ASSERT( is_running() );
-		run();
+        run();
         BOOST_ASSERT( is_running() );
-	}
+    }
 /*    catch ( coro::detail::forced_unwind const&)
     {
         set_terminated_();
         release();
         throw;
     }
-*/	catch( fiber_interrupted const& ) {
-    	except_ = current_exception();
-	}
-	catch( ... ) {
-		std::terminate();
-	}
+*/    catch( fiber_interrupted const& ) {
+        except_ = current_exception();
+    }
+    catch( ... ) {
+        std::terminate();
+    }
     set_terminated_();
     release();
 
-	fibers::detail::scheduler::instance()->run();
+    fibers::detail::scheduler::instance()->run();
 
     BOOST_ASSERT_MSG( false, "fiber already terminated");
 }

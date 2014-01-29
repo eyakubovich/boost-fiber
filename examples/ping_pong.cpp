@@ -10,30 +10,30 @@
 
 #include <boost/fiber/all.hpp>
 
-typedef boost::fibers::unbounded_queue< std::string >	fifo_t;
+typedef boost::fibers::unbounded_queue< std::string >    fifo_t;
 
 inline
 void ping( fifo_t & recv_buf, fifo_t & send_buf)
 {
     boost::fibers::fiber::id id( boost::this_fiber::get_id() );
 
-	send_buf.push("ping");
+    send_buf.push("ping");
 
-	std::string value;
+    std::string value;
     recv_buf.pop( value);
-	std::cout << "fiber " <<  id << ": ping received: " << value << std::endl;
-	value.clear();
+    std::cout << "fiber " <<  id << ": ping received: " << value << std::endl;
+    value.clear();
 
-	send_buf.push("ping");
-
-    recv_buf.pop( value);
-	std::cout << "fiber " <<  id << ": ping received: " << value << std::endl;
-	value.clear();
-
-	send_buf.push("ping");
+    send_buf.push("ping");
 
     recv_buf.pop( value);
-	std::cout << "fiber " <<  id << ": ping received: " << value << std::endl;
+    std::cout << "fiber " <<  id << ": ping received: " << value << std::endl;
+    value.clear();
+
+    send_buf.push("ping");
+
+    recv_buf.pop( value);
+    std::cout << "fiber " <<  id << ": ping received: " << value << std::endl;
 
     send_buf.close();
 }
@@ -43,31 +43,31 @@ void pong( fifo_t & recv_buf, fifo_t & send_buf)
 {
     boost::fibers::fiber::id id( boost::this_fiber::get_id() );
 
-	std::string value;
+    std::string value;
     recv_buf.pop( value);
-	std::cout << "fiber " <<  id << ": pong received: " << value << std::endl;
-	value.clear();
+    std::cout << "fiber " <<  id << ": pong received: " << value << std::endl;
+    value.clear();
 
-	send_buf.push("pong");
-
-    recv_buf.pop( value);
-	std::cout << "fiber " <<  id << ": pong received: " << value << std::endl;
-	value.clear();
-
-	send_buf.push("pong");
+    send_buf.push("pong");
 
     recv_buf.pop( value);
-	std::cout << "fiber " <<  id << ": pong received: " << value << std::endl;
+    std::cout << "fiber " <<  id << ": pong received: " << value << std::endl;
+    value.clear();
 
-	send_buf.push("pong");
+    send_buf.push("pong");
+
+    recv_buf.pop( value);
+    std::cout << "fiber " <<  id << ": pong received: " << value << std::endl;
+
+    send_buf.push("pong");
 
     send_buf.close();
 }
 
 int main()
 {
-	try
-	{
+    try
+    {
         fifo_t buf1, buf2;
 
         boost::fibers::fiber f1(
@@ -80,13 +80,13 @@ int main()
         f1.join();
         f2.join();
 
-		std::cout << "done." << std::endl;
+        std::cout << "done." << std::endl;
 
-		return EXIT_SUCCESS;
-	}
-	catch ( std::exception const& e)
-	{ std::cerr << "exception: " << e.what() << std::endl; }
-	catch (...)
-	{ std::cerr << "unhandled exception" << std::endl; }
-	return EXIT_FAILURE;
+        return EXIT_SUCCESS;
+    }
+    catch ( std::exception const& e)
+    { std::cerr << "exception: " << e.what() << std::endl; }
+    catch (...)
+    { std::cerr << "unhandled exception" << std::endl; }
+    return EXIT_FAILURE;
 }

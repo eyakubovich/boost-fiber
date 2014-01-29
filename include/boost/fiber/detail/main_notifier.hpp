@@ -33,15 +33,15 @@ public:
     main_notifier() :
         notify(static_cast<context::fcontext_t*>(this))
     {
-		thread_affinity(true);
-		set_running();
-	}
+        thread_affinity(true);
+        set_running();
+    }
 
-	~main_notifier()
-	{
-		BOOST_FOREACH( fss_data_t::value_type & data, fss_data_)
-		{ data.second.do_cleanup(); }
-	}
+    ~main_notifier()
+    {
+        BOOST_FOREACH( fss_data_t::value_type & data, fss_data_)
+        { data.second.do_cleanup(); }
+    }
 
     void deallocate_object()
     {}

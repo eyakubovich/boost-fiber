@@ -29,8 +29,8 @@ spinlock::lock()
         // sucessive acccess to state_ > cache hit
         while ( LOCKED == state_)
         {
-			// lock can only be held by another thread
-			// give up CPU to other threads to speed up lock's release
+            // lock can only be held by another thread
+            // give up CPU to other threads to speed up lock's release
             this_thread::yield();
         }
         // state_ was released by other

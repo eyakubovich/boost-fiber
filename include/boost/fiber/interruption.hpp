@@ -28,25 +28,25 @@ class restore_interruption;
 class disable_interruption : private noncopyable
 {
 private:
-	friend class restore_interruption;
+    friend class restore_interruption;
 
-	bool	set_;
+    bool    set_;
 
 public:
-	disable_interruption() BOOST_NOEXCEPT;
+    disable_interruption() BOOST_NOEXCEPT;
 
-	~disable_interruption() BOOST_NOEXCEPT;
+    ~disable_interruption() BOOST_NOEXCEPT;
 };
 
 class restore_interruption : private noncopyable
 {
 private:
-	disable_interruption	&	disabler_;
+    disable_interruption    &    disabler_;
 
 public:
-	explicit restore_interruption( disable_interruption & disabler) BOOST_NOEXCEPT;
+    explicit restore_interruption( disable_interruption & disabler) BOOST_NOEXCEPT;
 
-	~restore_interruption() BOOST_NOEXCEPT;
+    ~restore_interruption() BOOST_NOEXCEPT;
 };
 
 bool interruption_enabled() BOOST_NOEXCEPT;

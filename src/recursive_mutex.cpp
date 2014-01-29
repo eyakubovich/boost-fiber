@@ -23,7 +23,7 @@ namespace fibers {
 
 recursive_mutex::recursive_mutex() :
     splk_(),
-	state_( UNLOCKED),
+    state_( UNLOCKED),
     owner_(),
     count_( 0),
     waiting_()
@@ -40,31 +40,31 @@ void
 recursive_mutex::lock()
 {
     detail::notify::ptr_t n( detail::scheduler::instance()->active() );
-	for (;;)
-	{
-		unique_lock< detail::spinlock > lk( splk_);
+    for (;;)
+    {
+        unique_lock< detail::spinlock > lk( splk_);
 
-		if ( UNLOCKED == state_)
-		{
-			state_ = LOCKED;
-			BOOST_ASSERT( ! owner_);
-			owner_ = this_fiber::get_id();
-			++count_;
-			return;
-		}
-		else if ( this_fiber::get_id() == owner_)
-		{
-			++count_;
-			return;
-		}
-	
-		// store this fiber in order to be notified later
-		BOOST_ASSERT( waiting_.end() == std::find( waiting_.begin(), waiting_.end(), n) );
-		waiting_.push_back( n);
+        if ( UNLOCKED == state_)
+        {
+            state_ = LOCKED;
+            BOOST_ASSERT( ! owner_);
+            owner_ = this_fiber::get_id();
+            ++count_;
+            return;
+        }
+        else if ( this_fiber::get_id() == owner_)
+        {
+            ++count_;
+            return;
+        }
+    
+        // store this fiber in order to be notified later
+        BOOST_ASSERT( waiting_.end() == std::find( waiting_.begin(), waiting_.end(), n) );
+        waiting_.push_back( n);
 
-		// suspend this fiber
-		detail::scheduler::instance()->wait( lk);
-	}
+        // suspend this fiber
+        detail::scheduler::instance()->wait( lk);
+    }
 }
 
 bool

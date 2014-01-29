@@ -44,15 +44,15 @@ round_robin_ws::~round_robin_ws() BOOST_NOEXCEPT
 void
 round_robin_ws::awakened( detail::notify::ptr_t const& fib)
 {
-	rqueue_.push(fib);
+    rqueue_.push(fib);
 }
 
 detail::notify::ptr_t
 round_robin_ws::pick_next()
 {
-	detail::notify::ptr_t victim;
-	rqueue_.try_pop(victim);
-	return victim;
+    detail::notify::ptr_t victim;
+    rqueue_.try_pop(victim);
+    return victim;
 }
 
 void
@@ -70,11 +70,11 @@ round_robin_ws::steal_from()
 {
     detail::notify::ptr_t n;
     if ( rqueue_.try_pop( n) ) {
-		// ugly but safe as try_pop won't return main_notifier
-		// b/c it has thread affinity set
-		detail::fiber_base::ptr_t f(static_cast<detail::fiber_base*>(n.get()));
-		return fiber( f);
-	}
+        // ugly but safe as try_pop won't return main_notifier
+        // b/c it has thread affinity set
+        detail::fiber_base::ptr_t f(static_cast<detail::fiber_base*>(n.get()));
+        return fiber( f);
+    }
     return fiber();
 }
 

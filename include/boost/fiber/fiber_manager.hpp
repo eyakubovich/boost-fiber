@@ -37,9 +37,9 @@ namespace fibers {
 
 struct sched_algorithm
 {
-	virtual ~sched_algorithm() {}
-	virtual void awakened( detail::notify::ptr_t const&) = 0;
-	virtual detail::notify::ptr_t pick_next() = 0;
+    virtual ~sched_algorithm() {}
+    virtual void awakened( detail::notify::ptr_t const&) = 0;
+    virtual detail::notify::ptr_t pick_next() = 0;
     virtual void priority( detail::notify::ptr_t const&, int) BOOST_NOEXCEPT = 0;
 };
 
@@ -56,27 +56,27 @@ struct fiber_manager : private noncopyable
             f( f_), tp( tp_)
         { BOOST_ASSERT( f); }
 
-		bool operator>(schedulable const& other) const {
-			return tp > other.tp;
-		}
+        bool operator>(schedulable const& other) const {
+            return tp > other.tp;
+        }
     };
 
-	fiber_manager();
+    fiber_manager();
 
-	void set_sched_algo(sched_algorithm* algo) {
-		sched_algo_ = algo;
-		def_algo_.reset();
-	}
+    void set_sched_algo(sched_algorithm* algo) {
+        sched_algo_ = algo;
+        def_algo_.reset();
+    }
 
     void spawn( detail::fiber_base::ptr_t const&);
 
     void priority( detail::notify::ptr_t const& n, int prio) BOOST_NOEXCEPT
-	{ sched_algo_->priority(n, prio); }
+    { sched_algo_->priority(n, prio); }
 
     void join( detail::fiber_base::ptr_t const&);
 
     detail::notify::ptr_t active() BOOST_NOEXCEPT
-	{ return active_fiber_; }
+    { return active_fiber_; }
 
     void wait( unique_lock< detail::spinlock > &);
     bool wait_until( clock_type::time_point const&,
@@ -89,37 +89,37 @@ struct fiber_manager : private noncopyable
     void yield();
     void run();
 
-	clock_type::time_point next_wakeup()
-	{
-		if( wqueue_.empty() )
-			return (clock_type::time_point::max)();
-		else
-			return wqueue_.top().tp;
-	}
+    clock_type::time_point next_wakeup()
+    {
+        if( wqueue_.empty() )
+            return (clock_type::time_point::max)();
+        else
+            return wqueue_.top().tp;
+    }
 
     virtual detail::notify::ptr_t get_main_notifier()
-	{ return detail::notify::ptr_t(&mn_); }
+    { return detail::notify::ptr_t(&mn_); }
 
-	void migrate(detail::fiber_base::ptr_t const&);
+    void migrate(detail::fiber_base::ptr_t const&);
 
     virtual ~fiber_manager();
 
 private:
-	void resume_fiber(detail::notify::ptr_t const& n);
+    void resume_fiber(detail::notify::ptr_t const& n);
 
-	class wqueue_t : public std::priority_queue<
-		schedulable,
-		std::vector<schedulable>,
-		std::greater<schedulable> 
-	> {
-	public:
-		typedef std::vector<schedulable>::iterator iterator;
-		iterator begin() { return c.begin(); }
-		iterator end() { return c.end(); }
-	};
+    class wqueue_t : public std::priority_queue<
+        schedulable,
+        std::vector<schedulable>,
+        std::greater<schedulable> 
+    > {
+    public:
+        typedef std::vector<schedulable>::iterator iterator;
+        iterator begin() { return c.begin(); }
+        iterator end() { return c.end(); }
+    };
 
-	boost::scoped_ptr<sched_algorithm> def_algo_;
-	sched_algorithm* sched_algo_;
+    boost::scoped_ptr<sched_algorithm> def_algo_;
+    sched_algorithm* sched_algo_;
 
     detail::main_notifier       mn_;
     detail::notify::ptr_t       active_fiber_;

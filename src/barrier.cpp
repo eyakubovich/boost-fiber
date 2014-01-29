@@ -19,11 +19,11 @@ namespace boost {
 namespace fibers {
 
 barrier::barrier( std::size_t initial) :
-	initial_( initial),
-	current_( initial_),
-	cycle_( true),
-	mtx_(),
-	cond_()
+    initial_( initial),
+    current_( initial_),
+    cycle_( true),
+    mtx_(),
+    cond_()
 {
     if ( 0 == initial)
         boost::throw_exception(
@@ -35,23 +35,23 @@ barrier::barrier( std::size_t initial) :
 bool
 barrier::wait()
 {
-	mutex::scoped_lock lk( mtx_);
-	bool cycle( cycle_);
-	if ( 0 == --current_)
-	{
-		cycle_ = ! cycle_;
-		current_ = initial_;
-		cond_.notify_all();
-		return true;
-	}
-	else
-	{
-		while ( cycle == cycle_)
+    mutex::scoped_lock lk( mtx_);
+    bool cycle( cycle_);
+    if ( 0 == --current_)
+    {
+        cycle_ = ! cycle_;
+        current_ = initial_;
+        cond_.notify_all();
+        return true;
+    }
+    else
+    {
+        while ( cycle == cycle_)
             //FIXME: what happend if fiber is interrupted?
             // ++current_ ?
-			cond_.wait( lk);
-	}
-	return false;
+            cond_.wait( lk);
+    }
+    return false;
 }
 
 }}

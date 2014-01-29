@@ -144,5 +144,5 @@ boost::unit_test::test_suite * init_unit_test_suite( int, char* [])
     test->add( BOOST_TEST_CASE( & test_recursive_timed_mutex) );
     test->add( BOOST_TEST_CASE( & test_timed_mutex) );
 
-	return test;
+    return test;
 }
